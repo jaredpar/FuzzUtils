@@ -124,6 +124,4 @@ namespace FuzzUtils.Implementation.ErrorReporter
             }
         }
     }
-
-    }
 }

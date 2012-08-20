@@ -22,5 +22,6 @@
   <Content>
     <VsPackage>|%CurrentProject%;PkgdefProjectOutputGroup|</VsPackage>
     <MefComponent>|FuzzUtils|</MefComponent>
+    <MefComponent>|%CurrentProject%|</MefComponent>
   </Content>
 </Vsix>

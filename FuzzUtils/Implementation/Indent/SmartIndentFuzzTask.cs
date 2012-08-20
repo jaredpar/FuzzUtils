@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Utilities;
 namespace FuzzUtils.Implementation.Indent
 {
     [Export(typeof(IWpfTextViewCreationListener))]
+    [Export(typeof(IFuzzTask))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
     internal sealed class SmartIndentFuzzTask : IWpfTextViewCreationListener, IFuzzTask, ISmartIndentProvider
@@ -88,16 +89,18 @@ namespace FuzzUtils.Implementation.Indent
         private SmartIndent CreateSmartIndent(ITextView textView, ISmartIndent optionalSmartIndent = null)
         {
             var smartIndent = new SmartIndent(optionalSmartIndent);
-            EventHandler fuzzed = null;
-            EventHandler disposed = null;
+            EventHandler onFuzzed = null;
+            EventHandler onDisposed = null;
 
-            fuzzed = (sender, e) => _isActive = true;
-            disposed = 
+            onFuzzed = (sender, e) => _isActive = true;
+            onDisposed = 
                 (sender, e) =>
                 {
-                    smartIndent.Fuzzed -= fuzzed;
-                    smartIndent.Disposed -= disposed;
+                    smartIndent.Fuzzed -= onFuzzed;
+                    smartIndent.Disposed -= onDisposed;
                 };
+            smartIndent.Disposed += onDisposed;
+            smartIndent.Fuzzed += onFuzzed;
 
             return smartIndent;
         }
