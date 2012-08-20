@@ -11,6 +11,8 @@ namespace FuzzUtils.Implementation.Indent
     internal sealed class SmartIndent : ISmartIndent
     {
         private ISmartIndent _optionalOriginalSmartIndent;
+        internal event EventHandler Fuzzed;
+        internal event EventHandler Disposed;
 
         internal SmartIndent(ISmartIndent optionalOriginalSmartIndent = null)
         {
@@ -23,7 +25,24 @@ namespace FuzzUtils.Implementation.Indent
                 ? _optionalOriginalSmartIndent.GetDesiredIndentation(snapshotLine)
                 : 0;
             PerformNoopEdit(snapshotLine.Snapshot.TextBuffer, snapshotLine.Start.Position);
+            RaiseFuzzed();
             return indent;
+        }
+
+        private void RaiseFuzzed()
+        {
+            if (Fuzzed != null)
+            {
+                Fuzzed(this, EventArgs.Empty);
+            }
+        }
+
+        private void RaiseDisposed()
+        {
+            if (Disposed != null)
+            {
+                Disposed(this, EventArgs.Empty);
+            }
         }
 
         private void Dispose()
@@ -34,6 +53,8 @@ namespace FuzzUtils.Implementation.Indent
                 {
                     _optionalOriginalSmartIndent.Dispose();
                 }
+
+                RaiseDisposed();
             }
             finally
             {

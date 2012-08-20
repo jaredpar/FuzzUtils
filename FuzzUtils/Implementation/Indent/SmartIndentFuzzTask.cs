@@ -11,14 +11,15 @@ namespace FuzzUtils.Implementation.Indent
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
-    internal sealed class Listener : IWpfTextViewCreationListener
+    internal sealed class SmartIndentFuzzTask : IWpfTextViewCreationListener, IFuzzTask, ISmartIndentProvider
     {
         private readonly DispatcherTimer _dispatcherTimer;
         private readonly IProtectedOperations _protectedOperations;
         private readonly List<ITextView> _textViewList = new List<ITextView>();
+        private bool _isActive;
 
         [ImportingConstructor]
-        internal Listener([EditorUtilsImport] IProtectedOperations protectedOperations)
+        internal SmartIndentFuzzTask([EditorUtilsImport] IProtectedOperations protectedOperations)
         {
             _protectedOperations = protectedOperations;
             _dispatcherTimer = new DispatcherTimer(
@@ -34,6 +35,11 @@ namespace FuzzUtils.Implementation.Indent
             {
                 MaybeInstallSmartIndent(textView);
             }
+
+            // The _isActive check stays true from the point of fuzzing until the next idle.  If it 
+            // does cause an exception in the caller code it will happen after the fuzz.  We stay
+            // active until the next idle to help diagnostics pick smart indent as the cause
+            _isActive = false;
         }
 
         /// <summary>
@@ -45,13 +51,13 @@ namespace FuzzUtils.Implementation.Indent
         {
             var properties = textView.Properties;
             object key;
-            ISmartIndent smartindent;
-            if (!TryGetSmartIndent(properties, out key, out smartindent))
+            ISmartIndent smartIndent;
+            if (!TryGetSmartIndent(properties, out key, out smartIndent))
             {
                 return;
             }
 
-            properties[key] = new SmartIndent(smartindent);
+            properties[key] = CreateSmartIndent(textView, smartIndent);
         }
 
         private bool TryGetSmartIndent(PropertyCollection properties, out object key, out ISmartIndent smartIndent)
@@ -79,6 +85,23 @@ namespace FuzzUtils.Implementation.Indent
             return false;
         }
 
+        private SmartIndent CreateSmartIndent(ITextView textView, ISmartIndent optionalSmartIndent = null)
+        {
+            var smartIndent = new SmartIndent(optionalSmartIndent);
+            EventHandler fuzzed = null;
+            EventHandler disposed = null;
+
+            fuzzed = (sender, e) => _isActive = true;
+            disposed = 
+                (sender, e) =>
+                {
+                    smartIndent.Fuzzed -= fuzzed;
+                    smartIndent.Disposed -= disposed;
+                };
+
+            return smartIndent;
+        }
+
         #region IWpfTextViewCreationListener
 
         void IWpfTextViewCreationListener.TextViewCreated(IWpfTextView textView)
@@ -89,5 +112,27 @@ namespace FuzzUtils.Implementation.Indent
 
         #endregion
 
+        #region IFuzzTask
+
+        string IFuzzTask.Name
+        {
+            get { return "Smart Indent"; }
+        }
+
+        bool IFuzzTask.IsActive
+        {
+            get { return _isActive; }
+        }
+
+        #endregion
+
+        #region ISmartIndentProvider
+
+        ISmartIndent ISmartIndentProvider.CreateSmartIndent(ITextView textView)
+        {
+            return CreateSmartIndent(textView);
+        }
+
+        #endregion
     }
 }

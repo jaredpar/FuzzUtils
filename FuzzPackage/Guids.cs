@@ -2,7 +2,7 @@
 // MUST match guids.h
 using System;
 
-namespace JaredParsons.FuzzPackage
+namespace FuzzUtils.VisualStudio
 {
     static class GuidList
     {
