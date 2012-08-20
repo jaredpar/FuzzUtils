@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuzzUtils", "FuzzUtils.csproj", "{4DBC9C6C-76CD-46A2-BCB1-CE927A08C48A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuzzUtils", "FuzzUtils\FuzzUtils.csproj", "{4DBC9C6C-76CD-46A2-BCB1-CE927A08C48A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuzzPackage", "..\FuzzPackage\FuzzPackage.csproj", "{8F215FCD-5354-4ECD-80C6-540720A46192}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuzzPackage", "FuzzPackage\FuzzPackage.csproj", "{8F215FCD-5354-4ECD-80C6-540720A46192}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
