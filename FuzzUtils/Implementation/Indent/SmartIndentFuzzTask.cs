@@ -8,20 +8,20 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace FuzzUtils.Implementation.Indent
 {
-    [Export(typeof(IWpfTextViewCreationListener))]
     [Export(typeof(IFuzzTask))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
-    internal sealed class SmartIndentFuzzTask : IWpfTextViewCreationListener, IFuzzTask, ISmartIndentProvider
+    internal sealed class SmartIndentFuzzTask : IFuzzTask, ISmartIndentProvider
     {
         private readonly DispatcherTimer _dispatcherTimer;
         private readonly IProtectedOperations _protectedOperations;
-        private readonly List<ITextView> _textViewList = new List<ITextView>();
+        private readonly ITextViewTable _textViewTable;
         private bool _isActive;
 
         [ImportingConstructor]
-        internal SmartIndentFuzzTask([EditorUtilsImport] IProtectedOperations protectedOperations)
+        internal SmartIndentFuzzTask([EditorUtilsImport] IProtectedOperations protectedOperations, ITextViewTable textViewTable)
         {
+            _textViewTable = textViewTable;
             _protectedOperations = protectedOperations;
             _dispatcherTimer = new DispatcherTimer(
                 TimeSpan.FromSeconds(1),
@@ -32,7 +32,7 @@ namespace FuzzUtils.Implementation.Indent
 
         private void OnTimer(object sender, EventArgs e)
         {
-            foreach (var textView in _textViewList)
+            foreach (var textView in _textViewTable.ActiveTextViews)
             {
                 MaybeInstallSmartIndent(textView);
             }
@@ -104,16 +104,6 @@ namespace FuzzUtils.Implementation.Indent
 
             return smartIndent;
         }
-
-        #region IWpfTextViewCreationListener
-
-        void IWpfTextViewCreationListener.TextViewCreated(IWpfTextView textView)
-        {
-            _textViewList.Add(textView);
-            textView.Closed += (sender, e) => { _textViewList.Remove(textView); };
-        }
-
-        #endregion
 
         #region IFuzzTask
 
