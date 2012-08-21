@@ -31,34 +31,7 @@ namespace FuzzUtils.Implementation.Misc
                 return;
             }
 
-            var summary = BuildSummary(all, exception);
-            var message = exception.ToString();
-            _errorReporter.Report(summary, message);
-        }
-
-        private string BuildSummary(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
-        {
-            string summary;
-            if (fuzzTasks.Count == 1)
-            {
-                var fuzzTask = fuzzTasks[0];
-                summary = String.Format("Fuzzing Task '{0}' appears to have caused an error: {1}", fuzzTask.Name, exception.GetType().Name);
-            }
-            else
-            {
-                var builder = new StringBuilder();
-                foreach (var fuzzTask in fuzzTasks)
-                {
-                    if (builder.Length > 0)
-                    {
-                        builder.Append(", ");
-                    }
-                    builder.Append(fuzzTask.Name);
-                }
-                summary = String.Format("Fuzzing Tasks '{0}' appears to have caused an error: {1}", builder.ToString(), exception.GetType().Name);
-            }
-
-            return summary;
+            _errorReporter.Report(all, exception);
         }
 
         #region IExtensionErrorHandler

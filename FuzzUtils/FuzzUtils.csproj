@@ -73,6 +73,7 @@
     <Compile Include="Implementation\Misc\ErrorHandler.cs" />
     <Compile Include="Implementation\Indent\SmartIndentFuzzTask.cs" />
     <Compile Include="Implementation\Indent\SmartIndent.cs" />
+    <Compile Include="Implementation\Misc\LongEditsFuzzTask.cs" />
     <Compile Include="Implementation\Misc\TextViewTable.cs" />
     <Compile Include="ITextViewTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

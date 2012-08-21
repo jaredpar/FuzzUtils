@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using System.Collections.ObjectModel;
 
 namespace FuzzUtils.Implementation.ErrorReporter
 {
@@ -19,7 +20,7 @@ namespace FuzzUtils.Implementation.ErrorReporter
         private readonly object _key = new object();
         private readonly List<ITextView> _textViewList = new List<ITextView>();
 
-        private void Report(string summary, string message)
+        private void ReportCore(string summary, string message)
         {
             foreach (var textView in _textViewList)
             {
@@ -33,6 +34,19 @@ namespace FuzzUtils.Implementation.ErrorReporter
                     }
                 }
             }
+        }
+
+        private void Report(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
+        {
+            var summary = BuildSummary(fuzzTasks, exception);
+            var message = exception.ToString();
+            ReportCore(summary, message);
+        }
+
+        private void Report(IFuzzTask fuzzTask, string message)
+        {
+            var summary = BuildSummary(fuzzTask, "Failed");
+            ReportCore(summary, message);
         }
 
         private IWpfTextViewMargin CreateMargin(IWpfTextViewHost wpfTextViewHost, IWpfTextViewMargin marginContainer)
@@ -62,11 +76,45 @@ namespace FuzzUtils.Implementation.ErrorReporter
             return bannerMargin;
         }
 
+        private string BuildSummary(IFuzzTask fuzzTask, string summary)
+        {
+            return String.Format("Fuzzing Task '{0}' appears to have caused an error: {1}", fuzzTask.Name, summary);
+        }
+
+        private string BuildSummary(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
+        {
+            string summary;
+            if (fuzzTasks.Count == 1)
+            {
+                return BuildSummary(fuzzTasks[0], exception.GetType().Name);
+            }
+            else
+            {
+                var builder = new StringBuilder();
+                foreach (var fuzzTask in fuzzTasks)
+                {
+                    if (builder.Length > 0)
+                    {
+                        builder.Append(", ");
+                    }
+                    builder.Append(fuzzTask.Name);
+                }
+                summary = String.Format("Fuzzing Tasks '{0}' appears to have caused an error: {1}", builder.ToString(), exception.GetType().Name);
+            }
+
+            return summary;
+        }
+
         #region IErrorReporter
 
-        void IErrorReporter.Report(string summary, string message)
+        void IErrorReporter.Report(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
         {
-            Report(summary, message);
+            Report(fuzzTasks, exception);
+        }
+
+        void IErrorReporter.Report(IFuzzTask fuzzTask, string message)
+        {
+            Report(fuzzTask, message);
         }
 
         #endregion
