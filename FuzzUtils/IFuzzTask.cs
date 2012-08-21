@@ -4,9 +4,14 @@ namespace FuzzUtils
     public interface IFuzzTask
     {
         /// <summary>
-        /// Name of the fuzzing item
+        /// The identifier of the task.  This is linked to a help page on the github site
         /// </summary>
-        string Name { get; }
+        string Identifier { get; }
+
+        /// <summary>
+        /// Display name of the fuzzing item
+        /// </summary>
+        string DisplayName { get; }
 
         /// <summary>
         /// Whether or not the task is actively fuzzing.  This is used for diagnostic purposes

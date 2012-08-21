@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Utilities;
 namespace FuzzUtils.Implementation.Indent
 {
     [Export(typeof(IFuzzTask))]
+    [Export(typeof(ISmartIndentProvider))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
     internal sealed class SmartIndentFuzzTask : IFuzzTask, ISmartIndentProvider
@@ -107,7 +108,12 @@ namespace FuzzUtils.Implementation.Indent
 
         #region IFuzzTask
 
-        string IFuzzTask.Name
+        string IFuzzTask.Identifier
+        {
+            get { return "SmartIndent"; }
+        }
+
+        string IFuzzTask.DisplayName
         {
             get { return "Smart Indent"; }
         }

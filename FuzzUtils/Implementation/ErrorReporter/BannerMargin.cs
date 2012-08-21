@@ -25,11 +25,12 @@ namespace FuzzUtils.Implementation.ErrorReporter
             _bannerControl.IgnoreAllErrors += OnIgnoreAllErrors;
         }
 
-        internal void Report(string summary, string message)
+        internal void Report(Uri uri, string summary, string message)
         {
             _bannerControl.HeaderText = summary;
             _bannerControl.ErrorText = message;
             _bannerControl.ErrorTextVisibility = Visibility.Collapsed;
+            _bannerControl.FuzzDocumentationUri = uri;
             _bannerControl.Visibility = Visibility.Visible;
         }
 

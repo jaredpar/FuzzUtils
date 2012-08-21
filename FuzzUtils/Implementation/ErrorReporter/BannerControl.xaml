@@ -10,6 +10,9 @@
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="Margin" Value="2" />
         </Style>
+        <Style x:Key="TextBoxDisplay" TargetType="TextBlock">
+            <Setter Property="Margin" Value="2" />
+        </Style>
         <Style x:Key="TextDisplay" TargetType="TextBox">
             <Setter Property="Background" Value="Cornsilk" />
             <Setter Property="IsReadOnly" Value="true" />
@@ -23,6 +26,7 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -68,8 +72,18 @@
             Click="OnIgnoreAllClick"
             Content="Ignore All" />
 
-        <TextBox 
+        <TextBlock
             Grid.Row="1"
+            Grid.ColumnSpan="5"
+            HorizontalAlignment="Right"
+            Style="{StaticResource TextBoxDisplay}">
+            <Hyperlink NavigateUri="{Binding Path=FuzzDocumentationUri}">
+                Full Documentation
+            </Hyperlink>
+        </TextBlock>
+
+        <TextBox 
+            Grid.Row="2"
             Grid.ColumnSpan="5"
             Visibility="{Binding Path=ErrorTextVisibility}"
             Style="{StaticResource TextDisplay}"

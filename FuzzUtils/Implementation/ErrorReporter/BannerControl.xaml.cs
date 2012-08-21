@@ -35,6 +35,11 @@ namespace FuzzUtils.Implementation.ErrorReporter
             typeof(BannerControl),
             new PropertyMetadata(Visibility.Collapsed));
 
+        public static readonly DependencyProperty FuzzDocumenationUriProperty = DependencyProperty.Register(
+            "FuzzDocumentationUri",
+            typeof(Uri),
+            typeof(BannerControl));
+
         private Exception _exception;
 
         public string HeaderText
@@ -53,6 +58,12 @@ namespace FuzzUtils.Implementation.ErrorReporter
         {
             get { return (Visibility)GetValue(ErrorTextVisibilityProperty); }
             set { SetValue(ErrorTextVisibilityProperty, value); }
+        }
+
+        public Uri FuzzDocumentationUri
+        {
+            get { return (Uri)GetValue(FuzzDocumenationUriProperty); }
+            set { SetValue(FuzzDocumenationUriProperty, value); }
         }
 
         public Exception Exception

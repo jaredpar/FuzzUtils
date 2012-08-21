@@ -84,7 +84,12 @@ A long lived ITextEdit was detected.  While this is open no other component can 
 
         #region IFuzzTask
 
-        string IFuzzTask.Name
+        string IFuzzTask.Identifier
+        {
+            get { return "LongEdits"; }
+        }
+
+        string IFuzzTask.DisplayName
         {
             get { return "Long Edits"; }
         }

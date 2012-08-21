@@ -20,7 +20,7 @@ namespace FuzzUtils.Implementation.ErrorReporter
         private readonly object _key = new object();
         private readonly List<ITextView> _textViewList = new List<ITextView>();
 
-        private void ReportCore(string summary, string message)
+        private void ReportCore(Uri uri, string summary, string message)
         {
             foreach (var textView in _textViewList)
             {
@@ -29,7 +29,7 @@ namespace FuzzUtils.Implementation.ErrorReporter
                     BannerMargin bannerMargin;
                     if (textView.Properties.TryGetProperty(_key, out bannerMargin))
                     {
-                        bannerMargin.Report(summary, message);
+                        bannerMargin.Report(uri, summary, message);
                         break;
                     }
                 }
@@ -38,15 +38,17 @@ namespace FuzzUtils.Implementation.ErrorReporter
 
         private void Report(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
         {
+            var uri = BuildUri(fuzzTasks[0]);
             var summary = BuildSummary(fuzzTasks, exception);
             var message = exception.ToString();
-            ReportCore(summary, message);
+            ReportCore(uri, summary, message);
         }
 
         private void Report(IFuzzTask fuzzTask, string message)
         {
+            var uri = BuildUri(fuzzTask);
             var summary = BuildSummary(fuzzTask, "Failed");
-            ReportCore(summary, message);
+            ReportCore(uri, summary, message);
         }
 
         private IWpfTextViewMargin CreateMargin(IWpfTextViewHost wpfTextViewHost, IWpfTextViewMargin marginContainer)
@@ -78,7 +80,7 @@ namespace FuzzUtils.Implementation.ErrorReporter
 
         private string BuildSummary(IFuzzTask fuzzTask, string summary)
         {
-            return String.Format("Fuzzing Task '{0}' appears to have caused an error: {1}", fuzzTask.Name, summary);
+            return String.Format("Fuzzing Task '{0}' appears to have caused an error: {1}", fuzzTask.DisplayName, summary);
         }
 
         private string BuildSummary(ReadOnlyCollection<IFuzzTask> fuzzTasks, Exception exception)
@@ -97,13 +99,20 @@ namespace FuzzUtils.Implementation.ErrorReporter
                     {
                         builder.Append(", ");
                     }
-                    builder.Append(fuzzTask.Name);
+                    builder.Append(fuzzTask.DisplayName);
                 }
                 summary = String.Format("Fuzzing Tasks '{0}' appears to have caused an error: {1}", builder.ToString(), exception.GetType().Name);
             }
 
             return summary;
         }
+
+        private Uri BuildUri(IFuzzTask fuzzTask)
+        {
+            var str = String.Format("http://http://jaredpar.github.com/FuzzUtils/tasks/{0}.html", fuzzTask.Identifier);
+            return new Uri(str);
+        }
+
 
         #region IErrorReporter
 
